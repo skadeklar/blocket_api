@@ -6,10 +6,8 @@ CAR_SEARCH_URL = f"{SITE_URL}/mobility/search/api/search/SEARCH_ID_CAR_USED"
 BOAT_SEARCH_URL = f"{SITE_URL}/mobility/search/api/search/SEARCH_ID_BOAT_USED"
 MC_SEARCH_URL = f"{SITE_URL}/mobility/search/api/search/SEARCH_ID_MC_USED"
 
-# The moped search API endpoint must be verified against Blocket before use.
-# Unlike cars and motorcycles, no working moped search ID has been verified.
-# Supply it server-side through BlocketAPI(moped_search_url=...) or
-# the BLOCKET_MOPED_SEARCH_URL environment variable.
+# Verified 2026-11-04 with live class I and II results on Blocket.
+MOPED_SEARCH_URL = f"{SITE_URL}/mobility/search/api/search/SEARCH_ID_MC_SCOOTER"
 MOPED_SEARCH_PAGE_URL = f"{SITE_URL}/mobility/search/mc/scooter"
 
 HEADERS = {
