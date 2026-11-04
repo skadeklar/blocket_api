@@ -3,6 +3,7 @@
 These tests deliberately do not access Blocket; a live search endpoint
 has separately been verified with live class-I/II listings.
 """
+
 from typing import Any
 
 import httpx
