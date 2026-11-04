@@ -13,7 +13,6 @@ from ._params import (
     build_search_params,
 )
 from .ad_parser import BoatAd, CarAd, McAd, MopedAd, RecommerceAd
-from .moped import resolve_moped_search_url
 from .constants import (
     BOAT_SEARCH_URL,
     CAR_SEARCH_URL,
@@ -36,6 +35,7 @@ from .constants import (
     SortOrder,
     SubCategory,
 )
+from .moped import resolve_moped_search_url
 
 
 def _request(*, url: str, params: list[tuple[str, _ParamValue]]) -> httpx.Response:
