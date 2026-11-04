@@ -10,8 +10,8 @@ import pytest
 
 from blocket_api import AsyncBlocketAPI, BlocketAPI, McModel, MopedType
 from blocket_api._params import build_moped_params
-from blocket_api.moped import resolve_moped_search_url
 from blocket_api.constants import MOPED_SEARCH_URL
+from blocket_api.moped import resolve_moped_search_url
 
 
 TEST_URL = (
