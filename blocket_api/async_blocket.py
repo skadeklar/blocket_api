@@ -204,7 +204,7 @@ class AsyncBlocketAPI:
         mileage_to: int | None = None,
         org_id: int | None = None,
     ) -> dict[str, Any]:
-        """Asynchronous search for moped classes I/II only."""
+        """Asynchronous Blocket scooter search for moped classes I/II."""
         url = resolve_moped_search_url(self._moped_search_url)
         params = build_moped_params(
             query,
