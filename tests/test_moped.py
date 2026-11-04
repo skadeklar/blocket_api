@@ -3,6 +3,8 @@
 These tests deliberately do not access Blocket; a live search endpoint
 still needs independent verification against real class-I/II listings.
 """
+from typing import Any
+
 import httpx
 import pytest
 
@@ -17,7 +19,7 @@ TEST_URL = (
 )
 
 
-def test_moped_params_include_both_classes_and_no_mopedcar():
+def test_moped_params_include_both_classes_and_no_mopedcar() -> None:
     params = build_moped_params("Speedfight", models=[McModel.PEUGEOT])
     assert ("q", "Speedfight") in params
     assert ("make", McModel.PEUGEOT.value) in params
@@ -25,7 +27,7 @@ def test_moped_params_include_both_classes_and_no_mopedcar():
     assert 10 not in [value for name, value in params if name == "type"]
 
 
-def test_moped_params_selected_type():
+def test_moped_params_selected_type() -> None:
     params = build_moped_params("Viarelli", types=[MopedType.KLASS_II])
     assert [value for name, value in params if name == "type"] == [8]
 
@@ -36,12 +38,12 @@ def test_moped_params_selected_type():
     {"price_from": -5},
     {"mileage_to": -1},
 ])
-def test_invalid_filters_raise(kwargs):
+def test_invalid_filters_raise(kwargs: dict[str, Any]) -> None:
     with pytest.raises(ValueError):
         build_moped_params(**kwargs)
 
 
-def test_moped_url_must_be_verified_and_configured(monkeypatch):
+def test_moped_url_must_be_verified_and_configured(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("BLOCKET_MOPED_SEARCH_URL", raising=False)
     with pytest.raises(RuntimeError, match="not configured"):
         resolve_moped_search_url()
@@ -55,10 +57,10 @@ def test_moped_url_must_be_verified_and_configured(monkeypatch):
             resolve_moped_search_url(unsafe)
 
 
-def test_sync_moped_search_reuses_current_httpx(monkeypatch):
-    observed = {}
+def test_sync_moped_search_reuses_current_httpx(monkeypatch: pytest.MonkeyPatch) -> None:
+    observed: dict[str, Any] = {}
 
-    def get(url, *, headers, params):
+    def get(url: str, *, headers: dict[str, str], params: list[tuple[str, Any]]) -> httpx.Response:
         observed["url"] = url
         observed["params"] = params
         return httpx.Response(200, json={"docs": [{"heading": "Peugeot"}]},
@@ -75,8 +77,8 @@ def test_sync_moped_search_reuses_current_httpx(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_async_moped_search_uses_configured_endpoint():
-    calls = []
+async def test_async_moped_search_uses_configured_endpoint() -> None:
+    calls: list[httpx.Request] = []
 
     def handler(request: httpx.Request) -> httpx.Response:
         calls.append(request)
