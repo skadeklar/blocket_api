@@ -6,6 +6,10 @@ CAR_SEARCH_URL = f"{SITE_URL}/mobility/search/api/search/SEARCH_ID_CAR_USED"
 BOAT_SEARCH_URL = f"{SITE_URL}/mobility/search/api/search/SEARCH_ID_BOAT_USED"
 MC_SEARCH_URL = f"{SITE_URL}/mobility/search/api/search/SEARCH_ID_MC_USED"
 
+# Verified 2026-11-04 with live class I and II results on Blocket.
+MOPED_SEARCH_URL = f"{SITE_URL}/mobility/search/api/search/SEARCH_ID_MC_SCOOTER"
+MOPED_SEARCH_PAGE_URL = f"{SITE_URL}/mobility/search/mc/scooter"
+
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0"
 }
@@ -519,6 +523,13 @@ class McModel(IntEnum):
     ZONTES = 8516
     ZUNDAPP = 7911
     OVRIGA = 2045
+
+
+class MopedType(IntEnum):
+    """Confirmed Blocket scooter-page type filters (not MC scooter type 18)."""
+
+    EU_KLASS_I = 6
+    KLASS_II = 8
 
 
 class McType(IntEnum):

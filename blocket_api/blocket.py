@@ -9,9 +9,10 @@ from ._params import (
     build_boat_params,
     build_car_params,
     build_mc_params,
+    build_moped_params,
     build_search_params,
 )
-from .ad_parser import BoatAd, CarAd, McAd, RecommerceAd
+from .ad_parser import BoatAd, CarAd, McAd, MopedAd, RecommerceAd
 from .constants import (
     BOAT_SEARCH_URL,
     CAR_SEARCH_URL,
@@ -30,9 +31,11 @@ from .constants import (
     McModel,
     McSortOrder,
     McType,
+    MopedType,
     SortOrder,
     SubCategory,
 )
+from .moped import resolve_moped_search_url
 
 
 def _request(*, url: str, params: list[tuple[str, _ParamValue]]) -> httpx.Response:
@@ -42,6 +45,10 @@ def _request(*, url: str, params: list[tuple[str, _ParamValue]]) -> httpx.Respon
 
 
 class BlocketAPI:
+    def __init__(self, *, moped_search_url: str | None = None) -> None:
+        # Existing consumers of BlocketAPI() require no configuration.
+        self._moped_search_url = moped_search_url
+
     def search(
         self,
         query: str,
@@ -164,6 +171,48 @@ class BlocketAPI:
         )
         return _request(url=MC_SEARCH_URL, params=params).json()
 
-    def get_ad(self, ad: RecommerceAd | CarAd | BoatAd | McAd) -> dict[str, Any]:
+
+    def search_moped(
+        self,
+        query: str | None = None,
+        *,
+        page: int = 1,
+        sort_order: McSortOrder = McSortOrder.RELEVANCE,
+        models: list[McModel] = [],
+        types: list[MopedType] | None = None,
+        locations: list[Location] = [],
+        price_from: int | None = None,
+        price_to: int | None = None,
+        year_from: int | None = None,
+        year_to: int | None = None,
+        mileage_from: int | None = None,
+        mileage_to: int | None = None,
+        org_id: int | None = None,
+    ) -> dict[str, Any]:
+        """Search Blocket moped classes I/II; never silently use the MC endpoint.
+
+        Uses Blocket's verified scooter search endpoint by default.
+        Both moped classes are requested; downstream consumers should also
+        filter any miscategorized moped-car listings.
+        """
+        url = resolve_moped_search_url(self._moped_search_url)
+        params = build_moped_params(
+            query,
+            page=page,
+            sort_order=sort_order,
+            models=models,
+            types=(MopedType.EU_KLASS_I, MopedType.KLASS_II) if types is None else types,
+            locations=locations,
+            price_from=price_from,
+            price_to=price_to,
+            year_from=year_from,
+            year_to=year_to,
+            mileage_from=mileage_from,
+            mileage_to=mileage_to,
+            org_id=org_id,
+        )
+        return _request(url=url, params=params).json()
+
+    def get_ad(self, ad: RecommerceAd | CarAd | BoatAd | McAd | MopedAd) -> dict[str, Any]:
         response = _request(url=ad.url, params=[])
         return ad.parse(response)

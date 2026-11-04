@@ -120,3 +120,41 @@ asyncio.run(main())
 - Source repo: https://github.com/dunderrrrrr/blocket_api
 - PyPI: https://pypi.org/project/blocket-api/
 - Email: hello@blocket-api.se
+
+
+## Skadeklar extension: moped and scooter search (work in progress)
+
+This fork adds `BlocketAPI.search_moped()`, `AsyncBlocketAPI.search_moped()`,
+`MopedType` (EU class I: `type=6`, class II: `type=8`) and `MopedAd`.
+Moped cars are intentionally excluded; motorcycle scooters still use `search_mc()`.
+
+**Verified Blocket endpoint (2026-11-04):**
+`https://www.blocket.se/mobility/search/api/search/SEARCH_ID_MC_SCOOTER`.
+Blocket's own scooter listing uses `type=6` for EU-moped klass I and
+`type=8` for moped klass II. Live class-filtered searches were checked
+against listings for Rieju, Viarelli and Peugeot Speedfight. The client now
+uses this endpoint by default. An optional server-side override
+`BLOCKET_MOPED_SEARCH_URL` or constructor argument remains available if
+Blocket changes its URL. No Blocket API key is needed for the unofficial
+public search interface.
+
+**Data quality:** Blocket occasionally has miscoded ads (e.g. moped cars
+categorised as mopeds). Consumers must validate the vehicle type and exclude
+moped cars before using an advert for insurance valuation. Live testing is
+not a substitute for running the repository's complete CI and portal regression
+tests. The GitHub fork itself is a Python library, **not** a hosted REST API.
+
+```python
+from blocket_api import BlocketAPI, McModel, MopedType
+
+api = BlocketAPI()  # uses SEARCH_ID_MC_SCOOTER by default
+results = api.search_moped(
+    "Speedfight", models=[McModel.PEUGEOT],
+    types=[MopedType.EU_KLASS_I],
+    price_to=30000,
+)
+```
+
+This fork is for Skadeklar's authorized internal workflows. Upstream listing categorisation can be inaccurate; filter moped cars from
+valuation results. No public relay, proxy or new database is required by
+this Python library.

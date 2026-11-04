@@ -15,6 +15,7 @@ from .constants import (
     McModel,
     McSortOrder,
     McType,
+    MopedType,
     SortOrder,
     SubCategory,
 )
@@ -166,4 +167,57 @@ def build_mc_params(
     extras.extend(("location", loc.value) for loc in locations)
     extras.extend(("type", t.value) for t in types)
 
+    return _build_params(defaults, extras)
+
+
+def build_moped_params(
+    query: str | None = None,
+    *,
+    page: int = 1,
+    sort_order: McSortOrder = McSortOrder.RELEVANCE,
+    models: Sequence[McModel] = (),
+    types: Sequence[MopedType] = (MopedType.EU_KLASS_I, MopedType.KLASS_II),
+    locations: Sequence[Location] = (),
+    price_from: int | None = None,
+    price_to: int | None = None,
+    year_from: int | None = None,
+    year_to: int | None = None,
+    mileage_from: int | None = None,
+    mileage_to: int | None = None,
+    org_id: int | None = None,
+) -> list[tuple[str, _ParamValue]]:
+    """Build scooter-page filters; only classes I and II may be requested.
+
+    This builder is independent of the (as yet unverified) JSON endpoint.
+    Mopedbilar are deliberately excluded. Use a dedicated moped endpoint,
+    not MC_SEARCH_URL, since the latter can return motorcycle listings.
+    """
+    if not types or any(t not in (MopedType.EU_KLASS_I, MopedType.KLASS_II) for t in types):
+        raise ValueError("Mopeds must use Blocket type=6 and/or type=8")
+    if page < 1:
+        raise ValueError("page must be >= 1")
+    for label, value in (
+        ("price_from", price_from), ("price_to", price_to),
+        ("year_from", year_from), ("year_to", year_to),
+        ("mileage_from", mileage_from), ("mileage_to", mileage_to)
+    ):
+        if value is not None and value < 0:
+            raise ValueError(f"{label} must be non-negative")
+
+    defaults: dict[str, _ParamValue] = {
+        "q": query,
+        "page": page,
+        "sort": sort_order.value,
+        "price_from": price_from,
+        "price_to": price_to,
+        "year_from": year_from,
+        "year_to": year_to,
+        "mileage_from": mileage_from,
+        "mileage_to": mileage_to,
+        "orgId": org_id,
+    }
+    extras: list[tuple[str, _ParamValue]] = []
+    extras.extend(("type", int(t)) for t in types)
+    extras.extend(("make", m.value) for m in models)
+    extras.extend(("location", loc.value) for loc in locations)
     return _build_params(defaults, extras)
