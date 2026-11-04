@@ -26,7 +26,7 @@ def test_moped_params_include_both_classes_and_no_mopedcar() -> None:
     assert ("q", "Speedfight") in params
     assert ("make", McModel.PEUGEOT.value) in params
     assert [value for name, value in params if name == "type"] == [6, 8]
-    assert 10 not in [value for name, value in params if name == "type"]
+    assert 1363 not in [value for name, value in params if name == "type"]
 
 
 def test_moped_params_selected_type() -> None:
