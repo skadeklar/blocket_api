@@ -191,8 +191,9 @@ class BlocketAPI:
     ) -> dict[str, Any]:
         """Search Blocket moped classes I/II; never silently use the MC endpoint.
 
-        A working dedicated JSON endpoint must be configured explicitly.
-        Both class types are included by default, and moped cars are excluded.
+        Uses Blocket's verified scooter search endpoint by default.
+        Both moped classes are requested; downstream consumers should also
+        filter any miscategorized moped-car listings.
         """
         url = resolve_moped_search_url(self._moped_search_url)
         params = build_moped_params(
