@@ -196,3 +196,15 @@ class McAd(MobilityAd):
         ):
             if link := place_h2.find_parent():
                 data["location"] = link.get_text(strip=True)
+
+
+class MopedAd(MobilityAd):
+    """Parse available public moped details using the mobility ad layout."""
+
+    quick_spec_mapping = {
+        "Modellår": "model_year",
+        "Miltal": "mileage",
+        "Motorvolym": "engine_volume",
+        "Typ": "type",
+        "Drivmedel": "fuel",
+    }
