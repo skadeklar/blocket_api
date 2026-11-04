@@ -8,9 +8,11 @@ from ._params import (
     build_boat_params,
     build_car_params,
     build_mc_params,
+    build_moped_params,
     build_search_params,
 )
-from .ad_parser import BoatAd, CarAd, McAd, RecommerceAd
+from .ad_parser import BoatAd, CarAd, McAd, MopedAd, RecommerceAd
+from .moped import resolve_moped_search_url
 from .constants import (
     BOAT_SEARCH_URL,
     CAR_SEARCH_URL,
@@ -29,13 +31,15 @@ from .constants import (
     McModel,
     McSortOrder,
     McType,
+    MopedType,
     SortOrder,
     SubCategory,
 )
 
 
 class AsyncBlocketAPI:
-    def __init__(self, client: httpx.AsyncClient | None = None) -> None:
+    def __init__(self, client: httpx.AsyncClient | None = None, *, moped_search_url: str | None = None) -> None:
+        self._moped_search_url = moped_search_url
         self._client = client or httpx.AsyncClient()
         self._owns_client = client is None
 
@@ -182,7 +186,46 @@ class AsyncBlocketAPI:
         response.raise_for_status()
         return response.json()
 
-    async def get_ad(self, ad: RecommerceAd | CarAd | BoatAd | McAd) -> dict[str, Any]:
+
+    async def search_moped(
+        self,
+        query: str | None = None,
+        *,
+        page: int = 1,
+        sort_order: McSortOrder = McSortOrder.RELEVANCE,
+        models: list[McModel] = [],
+        types: list[MopedType] | None = None,
+        locations: list[Location] = [],
+        price_from: int | None = None,
+        price_to: int | None = None,
+        year_from: int | None = None,
+        year_to: int | None = None,
+        mileage_from: int | None = None,
+        mileage_to: int | None = None,
+        org_id: int | None = None,
+    ) -> dict[str, Any]:
+        """Asynchronous search for moped classes I/II only."""
+        url = resolve_moped_search_url(self._moped_search_url)
+        params = build_moped_params(
+            query,
+            page=page,
+            sort_order=sort_order,
+            models=models,
+            types=(MopedType.EU_KLASS_I, MopedType.KLASS_II) if types is None else types,
+            locations=locations,
+            price_from=price_from,
+            price_to=price_to,
+            year_from=year_from,
+            year_to=year_to,
+            mileage_from=mileage_from,
+            mileage_to=mileage_to,
+            org_id=org_id,
+        )
+        response = await self._client.get(url, headers=HEADERS, params=params)
+        response.raise_for_status()
+        return response.json()
+
+    async def get_ad(self, ad: RecommerceAd | CarAd | BoatAd | McAd | MopedAd) -> dict[str, Any]:
         response = await self._client.get(ad.url, headers=HEADERS)
         response.raise_for_status()
         return ad.parse(response)
