@@ -120,3 +120,39 @@ asyncio.run(main())
 - Source repo: https://github.com/dunderrrrrr/blocket_api
 - PyPI: https://pypi.org/project/blocket-api/
 - Email: hello@blocket-api.se
+
+
+## Skadeklar extension: moped and scooter search (work in progress)
+
+This fork adds `BlocketAPI.search_moped()`, `AsyncBlocketAPI.search_moped()`,
+`MopedType` (EU class I: `type=6`, class II: `type=8`) and `MopedAd`.
+Moped cars are intentionally excluded; motorcycle scooters still use `search_mc()`.
+
+**Not production ready yet:** The public Blocket page
+<https://www.blocket.se/mobility/search/mc/scooter> confirms the class filters
+but its dedicated JSON endpoint identifier has not been verified. The library
+therefore **does not guess an endpoint or silently fall back to motorcycle
+search**. Until an endpoint has been validated against real moped listings,
+calling `search_moped()` without explicit configuration raises a descriptive
+exception. This feature must not be marked as connected in Skadeklar Portal.
+
+After verifying the real Blocket network request, set the endpoint only on
+the backend (environment variable `BLOCKET_MOPED_SEARCH_URL`) or pass it in
+the constructor. No Blocket API key is required for the unofficial public
+search interface.
+
+```python
+from blocket_api import BlocketAPI, McModel, MopedType
+
+api = BlocketAPI()  # reads server-side BLOCKET_MOPED_SEARCH_URL
+results = api.search_moped(
+    "Speedfight", models=[McModel.PEUGEOT],
+    types=[MopedType.EU_KLASS_I],
+    price_to=30000,
+)
+```
+
+This fork is for Skadeklar's authorized internal workflows. Upstream
+response shape, type filtering and results for specific models need live
+verification before enabling the portal integration. No public relay,
+proxy or new database is required by this Python library.
