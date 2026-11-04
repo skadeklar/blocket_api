@@ -1,29 +1,25 @@
 """Moped-specific safe endpoint configuration.
 
 Blocket exposes moped class filters on the public scooter search page.
-A corresponding JSON endpoint has not yet been independently verified.
-No guessed search ID is used: the endpoint must be explicitly configured.
+Its dedicated JSON endpoint SEARCH_ID_MC_SCOOTER was verified against
+real class I and II searches on 2026-11-04.
 """
 from __future__ import annotations
 
 import os
 from urllib.parse import urlsplit
 
+from .constants import MOPED_SEARCH_URL
+
 
 def resolve_moped_search_url(explicit_url: str | None = None) -> str:
-    """Return the verified JSON search endpoint configured by the caller.
+    """Return Blocket's verified moped JSON endpoint or an explicit override.
 
     To prevent passing an arbitrary host through the client, only HTTPS
     Blocket search API URLs are accepted. URLs with queries/fragments or
     userinfo are rejected; filters are always sent as separate params.
     """
-    url = explicit_url or os.environ.get("BLOCKET_MOPED_SEARCH_URL")
-    if not url:
-        raise RuntimeError(
-            "Moped search is not configured: verify the JSON endpoint used by "
-            "https://www.blocket.se/mobility/search/mc/scooter and set "
-            "BLOCKET_MOPED_SEARCH_URL server-side or pass moped_search_url=."
-        )
+    url = explicit_url or os.environ.get("BLOCKET_MOPED_SEARCH_URL") or MOPED_SEARCH_URL
     parsed = urlsplit(url)
     if (
         parsed.scheme != "https"
