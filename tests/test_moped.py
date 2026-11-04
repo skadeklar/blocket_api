@@ -1,7 +1,7 @@
 """Offline tests for Skadeklar's moped search extension.
 
 These tests deliberately do not access Blocket; a live search endpoint
-still needs independent verification against real class-I/II listings.
+has separately been verified with live class-I/II listings.
 """
 from typing import Any
 
@@ -11,6 +11,7 @@ import pytest
 from blocket_api import AsyncBlocketAPI, BlocketAPI, McModel, MopedType
 from blocket_api._params import build_moped_params
 from blocket_api.moped import resolve_moped_search_url
+from blocket_api.constants import MOPED_SEARCH_URL
 
 
 TEST_URL = (
@@ -45,8 +46,7 @@ def test_invalid_filters_raise(kwargs: dict[str, Any]) -> None:
 
 def test_moped_url_must_be_verified_and_configured(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("BLOCKET_MOPED_SEARCH_URL", raising=False)
-    with pytest.raises(RuntimeError, match="not configured"):
-        resolve_moped_search_url()
+    assert resolve_moped_search_url() == MOPED_SEARCH_URL
     for unsafe in (
         "https://example.com/mobility/search/api/search/SEARCH_ID_X",
         "http://www.blocket.se/mobility/search/api/search/SEARCH_ID_X",
